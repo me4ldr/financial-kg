@@ -75,7 +75,21 @@ class KGBuildPipeline:
         """Step 2: 构建图谱节点"""
         logger.info("\n🏗️ Step 2: 构建图谱节点...")
 
-        # 创建行业节点
+        # ⚠️ 先创建产品节点，再创建行业节点
+        # 因为有些行业名和产品名相同（如"白酒"、"铜"、"半导体"等）
+        # 后创建的节点会覆盖同名节点，所以行业优先
+
+        # 创建产品节点（先）
+        for prod in self._products:
+            self.store.add_node(
+                node_id=prod["name"],
+                node_type="product",
+                **{k: v for k, v in prod.items() if v},
+            )
+        self.stats["products"] = len(self._products)
+        logger.info(f"  ✅ 产品节点: {len(self._products)} 个")
+
+        # 创建行业节点（后，会覆盖同名产品节点）
         for ind in self._industries:
             self.store.add_node(
                 node_id=ind["name"],
@@ -94,16 +108,6 @@ class KGBuildPipeline:
             )
         self.stats["companies"] = len(self._companies)
         logger.info(f"  ✅ 公司节点: {len(self._companies)} 个")
-
-        # 创建产品节点
-        for prod in self._products:
-            self.store.add_node(
-                node_id=prod["name"],
-                node_type="product",
-                **{k: v for k, v in prod.items() if v},
-            )
-        self.stats["products"] = len(self._products)
-        logger.info(f"  ✅ 产品节点: {len(self._products)} 个")
 
     def _build_relations(self):
         """Step 3: 构建图谱关系"""

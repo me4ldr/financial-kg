@@ -40,8 +40,8 @@ class LocalGraphStore:
             return []
         neighbors = []
         seen = set()
-        for u, v, k, data in self.graph.edges(node_id, data=True, keys=True):
-            if relation and data.get("relation") != relation:
+        for u, v, k, d in self.graph.edges(node_id, keys=True, data=True):
+            if relation and d.get("relation") != relation:
                 continue
             if v not in seen:
                 neighbors.append(v)
@@ -114,11 +114,13 @@ class LocalGraphStore:
 
     def summary(self) -> Dict:
         """图谱统计摘要"""
-        # 按节点类型统计
+        # 按节点类型统计（过滤掉非实体类型的节点）
         node_counts = {}
-        for _, data in self.graph.nodes(data=True):
+        for node_id, data in self.graph.nodes(data=True):
             nt = data.get("node_type", "unknown")
-            node_counts[nt] = node_counts.get(nt, 0) + 1
+            # 只统计真正的实体类型
+            if nt in ("company", "industry", "product"):
+                node_counts[nt] = node_counts.get(nt, 0) + 1
 
         # 按关系类型统计
         edge_counts = {}
@@ -144,7 +146,7 @@ class LocalGraphStore:
             visited.add(node)
             chain["nodes"].append({"id": node, **self.graph.nodes.get(node, {})})
             for neighbor in self.graph.neighbors(node):
-                for _, _, data in self.graph.edges(node, neighbor, data=True):
+                for k, data in self.graph[node][neighbor].items():
                     chain["edges"].append({
                         "source": node,
                         "target": neighbor,
