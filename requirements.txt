@@ -7,19 +7,16 @@ networkx>=3.0
 
 # 图数据库（可选）
 # neo4j>=5.0
-# py2neo>=2021.2
-
-# NLP
-# spacy>=3.0
-# transformers>=4.0
 
 # 数据处理
 pandas>=2.0
 pyyaml>=6.0
 
-# 可视化
-# streamlit>=1.0
-# pyvis>=0.3
+# 可视化（可选）
+# pyvis>=0.3.0
+
+# LLM 抽取（可选）
+# openai>=1.0
 
 # 开发工具
 pytest>=7.0
